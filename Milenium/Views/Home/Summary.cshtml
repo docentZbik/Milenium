@@ -1,0 +1,14 @@
+﻿@model Milenium.Models.UserData
+
+@{
+    ViewBag.Title = "Summary";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Summary</h2>
+
+@Html.LabelFor(x => x.Nickname)
+<div>@Model.Nickname</div>
+
+@Html.LabelFor(x => x.EmailAdress)
+<div>@Model.EmailAdress</div>

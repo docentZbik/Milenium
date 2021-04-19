@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Milenium.Models;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -10,21 +12,46 @@ namespace Milenium.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return View(new UserData());
         }
 
-        public ActionResult About()
+        [HttpGet]
+        public ActionResult SwitchLanguage(bool isLanguageChanged = false)
         {
-            ViewBag.Message = "Your application description page.";
+            string cultureType = string.Empty;
+            if (isLanguageChanged)
+            {
+                cultureType = "en-GB";
+            }
+            else
+            {
+                cultureType = "pl-PL";
+            }
 
-            return View();
+            var targetCultureInfo = new CultureInfo(cultureType);
+            CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture(cultureType);
+            CultureInfo.CurrentUICulture = CultureInfo.CreateSpecificCulture(cultureType);
+            CultureInfo.DefaultThreadCurrentCulture = targetCultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = targetCultureInfo;
+
+            return View("Index", new UserData { IsLanguageChanged = isLanguageChanged });
         }
 
-        public ActionResult Contact()
+        [HttpPost]
+        public ActionResult SubmitUserData(UserData userData)
         {
-            ViewBag.Message = "Your contact page.";
+            if(ModelState.IsValid)
+            {
+                return RedirectToAction("Summary",userData);
+            }
 
-            return View();
+            return View("Index",userData);
+        }
+
+        [HttpGet]
+        public ActionResult Summary(UserData userData)
+        {
+            return View("Summary",userData);
         }
     }
 }
