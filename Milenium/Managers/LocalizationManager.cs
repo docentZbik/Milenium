@@ -1,40 +1,42 @@
-﻿using Milenium.Models;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Web;
-using System.Web.Mvc;
 
-namespace Milenium.Controllers
+namespace Milenium.Managers
 {
-    public class HomeController : Controller
+    public class LocalizationManager
     {
-        public ActionResult Index()
-        {
-            return View();
-        }
+         private const string CookieKey = "language";
 
-        [HttpPost]
-        public ActionResult SwitchLanguage()
+        public void SetSelectedCultureInfo(HttpContextBase httpContext)
         {
-            return new EmptyResult();
-        }
-
-        [HttpPost]
-        public ActionResult SubmitUserData(UserData userData)
-        {
-            if(ModelState.IsValid)
+            var cookie = httpContext.Request.Cookies.Get(CookieKey);
+            string cultureType = string.Empty;
+            if(cookie == null || string.IsNullOrEmpty(cookie.Value))
             {
-                return RedirectToAction("Summary",userData);
+                httpContext.Response.Cookies.Add(new HttpCookie(CookieKey,"pl-PL"));
+                return;
+            }
+            else
+            {
+                cultureType = cookie.Value;
             }
 
-            return View("Index",userData);
-        }
+            if(ValidateCultureType(cultureType))
+            {
+                ChangeCurrentCulutre(cultureType);
+            }
+            
+            httpContext.Request.Cookies.Clear();
+            httpContext.Response.Cookies.Clear();
 
-        [HttpGet]
-        public ActionResult Summary(UserData userData)
-        {
-            return View("Summary",userData);
-        }
+            var responseCookie = new HttpCookie(CookieKey,cultureType);
+            responseCookie.Path = "/";
 
+            httpContext.Response.Cookies.Add(responseCookie);
+        }
 
         private bool ValidateCultureType(string cultureType)
         {

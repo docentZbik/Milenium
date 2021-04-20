@@ -1,4 +1,5 @@
-﻿@model Milenium.Models.BaseModel
+﻿
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,14 +8,57 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    $(function () {
+        console.log("ok");
+        console.log(getCookie("language"));
+        if (getCookie("language") == "en-GB") {
+            document.querySelector("#myChk").checked = "checked";
+        }
+    });
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function setcookie(name, value) {
+        document.cookie = name + "=" + value + ";path=/";
+    }
+
+    function triggerLink() {
+        const COOKIE_KEY = "language";
+        var myChk = document.getElementById("myChk").checked;
+        var cultureType = "";
+        if (myChk) {
+            cultureType = "en-GB";
+        }
+        else {
+            cultureType = "pl-PL";
+        }
+
+        setcookie(COOKIE_KEY, cultureType);
+
+        $.ajax({
+            url: '@Url.Action("SwitchLanguage","Home")',
+            type: 'Post',
+            success: function () {
+                console.log("It worked");
+                location.reload();
+            }
+        });
+    }
+    </script>
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 @Html.ActionLink("Milenium test", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-                @Html.CheckBox("languageChanger", Model.IsLanguageChanged, new { @id = "myChk", onClick = "triggerLink()" })
-                @Html.Label("languageChanger","Change Language")
+                @Html.CheckBox("languageChanger", false, new { @id = "myChk", @onClick = "triggerLink()" })
+                @Html.Label("languageChanger", "Change Language")
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -38,12 +82,4 @@
     @RenderSection("scripts", required: false)
 </body>
 </html>
-
-<script>
-
-    function triggerLink() {
-         var myChk = document.getElementById("myChk").checked;
-        window.location.href = '@Url.Action("SwitchLanguage","Home")?isLanguageChanged=' + myChk;
-    }
-</script>
 
